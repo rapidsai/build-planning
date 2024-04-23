@@ -1,0 +1,4 @@
+site_name: RAPIDS Build, Packaging, and Deployment Documentation
+nav:
+  - Home: index.md
+  - Build: building.md
