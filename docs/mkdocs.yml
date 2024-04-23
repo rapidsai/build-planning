@@ -2,3 +2,6 @@ site_name: RAPIDS Build, Packaging, and Deployment Documentation
 nav:
   - Home: index.md
   - Build: building.md
+  - Packaging: packaging.md
+  - CI: ci.md
+  - Release: release.md
