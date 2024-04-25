@@ -21,7 +21,7 @@ Moreover, as support for RAPIDS expands to encompass more use cases, more such f
 RAPIDS automates this process using the [rapids-dependency-file-generator](https://github.com/rapidsai/dependency-file-generator/) (DFG) tool.
 DFG defines a specification for a single file, `dependencies.yaml`, that lives at the root of each RAPIDS repository.
 This file is intended as a single source of truth for all the dependencies of a project.
-As of this writing, this is not quite because [DFG does not yet support meta.yaml or versions.json files](https://github.com/rapidsai/dependency-file-generator/issues/7).
+As of this writing, this is not quite true because [DFG does not yet support meta.yaml or versions.json files](https://github.com/rapidsai/dependency-file-generator/issues/7).
 Additionally, there is some manual modification done during wheel builds, [see below](#pyproject).
 However, these issues should be addressed over time.
 
@@ -43,7 +43,7 @@ The actual build logic for a package is controlled using the `build.sh` script i
 Typically, recipe `build.sh` scripts simply invoke the repository's top-level build.sh script with a specific set of arguments.
 This allows both Python and C++ conda packages to follow the same process and simply request that the top-level `build.sh` script build the right package.
 
-Starting with CUDA 12, [the entire CUDA toolkit is available from conda-forge](https://github.com/conda-forge/staged-recipes/issues/21382) (Note: link to conda-forge CUDA docs when they are available).
+Starting with CUDA 12, [the entire CUDA toolkit is available from conda-forge](https://github.com/conda-forge/staged-recipes/issues/21382) (TODO: link to conda-forge CUDA docs when they are available).
 Therefore, RAPIDS packages rely entirely on those packages, with the main exception being that the host system must have the CUDA driver library installed.
 Prior to CUDA 12, the CTK experience on conda was fragmented, with the [`cudatoolkit`](https://anaconda.org/conda-forge/cudatoolkit) conda-forge package being the most commonly used in the ecosystem while the more officially supported packages on the nvidia channel had a different structure, and neither provided compilers.
 RAPIDS recipes have conditional logic littered throughout to support both CUDA 11 and CUDA 12 builds.
@@ -61,6 +61,9 @@ Python packages distributed for pip are called [wheels](https://packaging.python
 Since pip is only a Python package manager, not a general package manager, it has no knowledge of native dependencies nor CUDA (for a more detailed discussion of the various limitations in the wheels space, see [the pypackaging-native website](https://pypackaging-native.github.io/)).
 These limitations mean that we must create a separate wheel for every CUDA version we want a package to support, and that package's dependencies must also be appropriately updated to match that CUDA version.
 To give a concrete example, we publish `cudf-cu11` (CUDA 11) and `cudf-cu12` (CUDA 12) wheels, and these depend on `rmm-cu11` and `rmm-cu12`, respectively.
+These suffixes are part of the package name, but they don't change the import names of the package.
+Each package will contain roughly the same contents, just built with different CUDA versions.
+In other words, `cudf-cu11` and `cudf-cu12` should not be installed together in the same environment, because they will clobber each other and cause unpredictable results.
 
 This difficulty is the reason why [the section on building Python packages recommended turning off build isolation](building.md#python-packages).
 The default dependency list specified in `pyproject.toml` for our packages does not contain the necessary suffix, and will therefore be incorrect.

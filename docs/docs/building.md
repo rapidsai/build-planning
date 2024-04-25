@@ -8,17 +8,17 @@ The CUDA and C++ libraries in RAPIDS are built using [CMake](https://cmake.org/)
 The main common dependencies of all of RAPIDS are the CUDA toolkit itself, the [Google testing framework](http://google.github.io/googletest/) for tests, and both the [Google benchmark](https://github.com/google/benchmark) and [NVBench](https://github.com/NVIDIA/nvbench) tools for benchmarking.
 All other dependencies vary from library to library.
 
-Build-time dependencies are managed using [`CPM.cmake`](https://github.com/cpm-cmake/CPM.cmake), a package manager for CMake that enables downloading dependencies and building them from source if they cannot be found.
+Build-time dependencies excluding the CUDA Toolkit are managed using [`CPM.cmake`](https://github.com/cpm-cmake/CPM.cmake), a package manager for CMake that enables downloading dependencies and building them from source if they cannot be found.
 This feature allows RAPIDS libraries to be built on systems where dependencies are not already installed.
 RAPIDS wraps `CPM` calls using [`rapids-cmake`](https://github.com/rapidsai/rapids-cmake), a set of CMake modules written for RAPIDS to encapsulate common CMake logic, to also provide proper dependency tracking and propagation to consumers.
 In addition, `rapids-cmake` also provides a number of additional common features needed across RAPIDS.
 
 RAPIDS C++ libraries can be built like any other CMake project using the standard commands:
 ```
-cmake -S . -B build -GNinja
+cmake -S <src_dir> -B build -GNinja
 cmake --build build
 ```
-Every library's CMake handles downloading `rapids-cmake` (usually by a `fetch_rapids.cmake` or `rapids_config.cmake` file at the repository root.
+Every library's CMake handles downloading `rapids-cmake` (usually by a `rapids_config.cmake` file at the repository root.
 Note that consumers are still generally responsible for having all other dependencies installed.
 Dependency installation is covered later in [the dependency section](packaging.md#dependencies).
 

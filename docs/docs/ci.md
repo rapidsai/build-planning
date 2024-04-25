@@ -1,6 +1,6 @@
 # CI and Deployment
 
-All RAPIDS packages are built using the standard infrastructure leveraged by CI.
+All RAPIDS packages are built using a standard shared CI infrastructure.
 Our CI infrastructure is a complex network of different pieces, built around [Github Actions](https://docs.github.com/en/actions) workflows running on custom containers.
 
 ## CI scripts
@@ -64,11 +64,11 @@ As described in [the conda section above](packaging.md#conda) the available pack
 Therefore, in RAPIDS conda CI images, for CUDA 11 images the CTK is installed on the system, while for CUDA 12 images it is not.
 The installation of conda itself in our CI images is handled upstream in the miniforge-cuda images (see below).
 
-The ci-imgs repository is automatically rebuild whenever new changes are pushed to any of the following:
+The [ci-imgs repository is automatically rebuilt whenever new changes are pushed to any of the following:
 
-- dependency-file-generator
-- miniforge-cuda
-- gha-tools
+- [dependency-file-generator](packaging.md#dependencies)
+- miniforge-cuda (see below)
+- [gha-tools](#gha-tools)
 
 This ensures that the images always have the latest version of everything required by our CI build scripts.
 
@@ -82,7 +82,7 @@ They are a minimal installation of [`miniforge`](https://github.com/conda-forge/
 
 ### Runners
 
-RAPIDS runs Github actions on [a set of self-hosted runners at NVIDIA](https://docs.gha-runners.nvidia.com/).
+RAPIDS runs Github actions on [a mixture of public and self-hosted runners at NVIDIA](https://docs.gha-runners.nvidia.com/).
 
 ### Shared workflows
 
