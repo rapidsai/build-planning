@@ -64,7 +64,7 @@ As described in [the conda section above](packaging.md#conda) the available pack
 Therefore, in RAPIDS conda CI images, for CUDA 11 images the CTK is installed on the system, while for CUDA 12 images it is not.
 The installation of conda itself in our CI images is handled upstream in the miniforge-cuda images (see below).
 
-The [ci-imgs repository is automatically rebuilt whenever new changes are pushed to any of the following:
+The ci-imgs repository is automatically rebuilt whenever new changes are pushed to any of the following:
 
 - [dependency-file-generator](packaging.md#dependencies)
 - miniforge-cuda (see below)
