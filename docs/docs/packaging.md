@@ -88,17 +88,18 @@ Therefore, during wheel builds we also do this [in our CI scripts by adding a `>
 
 ## `dependencies.yaml` Conventions
 
-Dependency sets (under the `dependencies` top-level key) shall have the
+Dependency lists (under the `dependencies` top-level key) shall have the
 following conventions:
 
 - Build dependencies (under `build-system.requires`) shall be under a
-  dependency set named `py_build_<wheel_name>`.
-- RAPIDS build dependencies (under `tool.rapids-build-backend.requires`) shall
-  be under a dependency set named `py_rapids_build_<wheel_name>`.
+  dependency list named `py_build_<wheel_name>`.
+- RAPIDS build backend dependencies (under
+  `tool.rapids-build-backend.requires`) shall be under a dependency list named
+  `py_rapids_build_<wheel_name>`.
 - Runtime dependencies (under `project.dependencies`) shall be under a
-  dependency set named `py_run_<wheel_name>`.
+  dependency list named `py_run_<wheel_name>`.
 - Test dependencies (under `project.optional-dependencies.test`) shall be under
-  a dependency set named `py_test_<wheel_name>`.
+  a dependency list named `py_test_<wheel_name>`.
 - CUDA-version-specific dependencies on other RAPIDS packages with a `-cu*`
   suffix shall have a `cuda_suffixed: "true"` parameter in their matrix entry.
   The fallback entry shall have the list of RAPIDS dependencies without their
@@ -106,7 +107,7 @@ following conventions:
   `pyproject.toml`, and so that use cases that build the projects without the
   `-cu*` suffix (such as DLFW) get the unsuffixed dependencies.
 - CUDA wheel dependencies (`nvidia-cublas-cu12`, etc.) shall be under a
-  dependency set named `cuda_wheels`. The CUDA-version-specific dependencies
+  dependency list named `cuda_wheels`. The CUDA-version-specific dependencies
   (with the `-cu*` suffix) shall be under a `specific` matrix entry with
   `cuda_version` and `use_cuda_wheels: "true"` parameters. This shall be
   followed by a matrix entry with `use_cuda_wheels: "false"` and no packages,
