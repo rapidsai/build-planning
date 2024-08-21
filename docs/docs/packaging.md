@@ -128,6 +128,7 @@ following conventions:
                 use_cuda_wheels: "true"
               packages:
                 - nvidia-cublas-cu12
+            # CUDA 11 does not provide wheels, so use the system libraries instead
             - matrix:
                 cuda_version: "11.*"
                 use_cuda_wheels: "true"
