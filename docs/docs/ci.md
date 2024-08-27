@@ -74,7 +74,7 @@ This ensures that the images always have the latest version of everything requir
 
 #### miniforge-cuda
 
-Our conda CI images are based on the [miniforge-cuda images](https://github.com/rapidsai/miniforge-cuda), which we also build.
+Our conda CI images are based on the [miniforge-cuda images](https://github.com/rapidsai/ci-imgs), which we also build.
 These images are based off of [`nvidia/cuda`](https://hub.docker.com/r/nvidia/cuda) Docker images, like the wheel images.
 They are a minimal installation of [`miniforge`](https://github.com/conda-forge/miniforge) on top of the CUDA images to enable conda in systems with the CTK installed.
 
