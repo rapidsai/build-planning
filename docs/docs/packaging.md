@@ -91,11 +91,24 @@ Therefore, during wheel builds we also do this [in our CI scripts by adding a `>
 Dependency lists (under the `dependencies` top-level key) shall have the
 following conventions:
 
-- Build dependencies (under `build-system.requires`) shall be under a
-  dependency list named `py_build_<wheel_name>`.
-- RAPIDS build backend dependencies (under
-  `tool.rapids-build-backend.requires`) shall be under a dependency list named
-  `py_rapids_build_<wheel_name>`.
+- Build-time dependencies intended for the `build-system.requires` table shall
+  be under a dependency list named `py_build_<wheel_name>`. This should only be
+  packages that are required for `rapids-build-backend` to run and generate
+  wheel metadata. For example:
+    - `rapids-build-backend` itself
+    - whatever provides the build backend indicated in
+      `tool.rapids-build-backend.build-backend` (e.g.`scikit-build-core` or
+      `setuptools`)
+    - if the project uses a `setup.py`, and libraries that are imported within
+      that `setup.py`
+- Build-time dependencies intended for the `tool.rapids-build-backend.requires`
+  table shall be under a dependency list named `py_rapids_build_<wheel_name>`.
+  This should be packages that are needed to create the files that end up in
+  the wheel. For example:
+    - build tools like `ninja` and `cmake`
+    - `Cython`
+    - packages providing headers / libraries used during compilation (e.g.
+      `librmm`, `libcudf`)
 - Runtime dependencies (under `project.dependencies`) shall be under a
   dependency list named `py_run_<wheel_name>`.
 - Test dependencies (under `project.optional-dependencies.test`) shall be under
