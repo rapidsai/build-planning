@@ -85,3 +85,76 @@ With conda, dependency constraints of the form `X.Y.*` will permit the installat
 pip is stricter and will not generally install nightlies unless the `--pre` argument is specified.
 However, pip can be instructed to install nightlies of specific packages by [using any specifier containing a pre-release or development version](https://pip.pypa.io/en/stable/cli/pip_install/#pre-release-versions).
 Therefore, during wheel builds we also do this [in our CI scripts by adding a `>=0.0.0a0` specifier to all the relevant constraints](https://github.com/rapidsai/cudf/blob/branch-24.06/ci/build_wheel.sh#L34).
+
+## `dependencies.yaml` Conventions
+
+Dependency lists (under the `dependencies` top-level key) shall have the
+following conventions:
+
+- Build-time dependencies intended for the `build-system.requires` table shall
+  be under a dependency list named `py_build_<wheel_name>`. This should only be
+  packages that are required for `rapids-build-backend` to run and generate
+  wheel metadata. For example:
+    - `rapids-build-backend` itself
+    - whatever provides the build backend indicated in
+      `tool.rapids-build-backend.build-backend` (e.g.`scikit-build-core` or
+      `setuptools`)
+    - if the project uses a `setup.py`, and libraries that are imported within
+      that `setup.py`
+- Build-time dependencies intended for the `tool.rapids-build-backend.requires`
+  table shall be under a dependency list named `py_rapids_build_<wheel_name>`.
+  This should be packages that are needed to create the files that end up in
+  the wheel. For example:
+    - build tools like `ninja` and `cmake`
+    - `Cython`
+    - packages providing headers / libraries used during compilation (e.g.
+      `librmm`, `libcudf`)
+- Runtime dependencies (under `project.dependencies`) shall be under a
+  dependency list named `py_run_<wheel_name>`.
+- Test dependencies (under `project.optional-dependencies.test`) shall be under
+  a dependency list named `py_test_<wheel_name>`.
+- CUDA-version-specific dependencies on other RAPIDS packages with a `-cu*`
+  suffix shall have a `cuda_suffixed: "true"` parameter in their matrix entry.
+  The fallback entry shall have the list of RAPIDS dependencies without their
+  `-cu*` suffix to serve as documentation in the source-controlled
+  `pyproject.toml`, and so that use cases that build the projects without the
+  `-cu*` suffix (such as DLFW) get the unsuffixed dependencies.
+- CUDA wheel dependencies (`nvidia-cublas-cu12`, etc.) shall be under a
+  dependency list named `cuda_wheels`. The CUDA-version-specific dependencies
+  (with the `-cu*` suffix) shall be under a `specific` matrix entry with
+  `cuda_version` and `use_cuda_wheels: "true"` parameters. This shall be
+  followed by a matrix entry with `use_cuda_wheels: "false"` and no packages,
+  to ensure that use cases like DLFW and devcontainers don't get CUDA wheels.
+  The fallback matrix entry shall contain all of the wheels without the `-cu*`
+  suffix. This list will never be used in an actual build, but ensures that
+  the default CUDA wheels that appear in `pyproject.toml` in source control
+  represent a CUDA-version-neutral version of the list of needed CUDA wheels.
+
+    Example:
+
+    ```
+    cuda_wheels:
+      specific:
+        - output_type: pyproject
+          matrices:
+            - matrix:
+                cuda_version: "12.*"
+                use_cuda_wheels: "true"
+              packages:
+                - nvidia-cublas-cu12
+            # CUDA 11 does not provide wheels, so use the system libraries instead
+            - matrix:
+                cuda_version: "11.*"
+                use_cuda_wheels: "true"
+              packages:
+            # if use_cuda_wheels=false is provided, do not add dependencies on any CUDA wheels
+            # (e.g. for DLFW and pip devcontainers)
+            - matrix:
+                use_cuda_wheels: "false"
+              packages:
+            # if no matching matrix selectors passed, list the unsuffixed packages
+            # (just as a source of documentation, as this populates pyproject.toml in source control)
+            - matrix:
+              packages:
+                - nvidia-cublas
+    ```
