@@ -158,3 +158,89 @@ following conventions:
               packages:
                 - nvidia-cublas
     ```
+- `requirements` or `pyproject` dependencies that require indices other than pypi.org should include
+  those indices in `dependencies.yaml`.
+
+    Example:
+
+    ```
+    run_pylibcudf:
+      common:
+        - output_types: requirements
+          packages:
+            # pip recognizes the index as a global option for the requirements.txt file
+            - --extra-index-url=https://pypi.nvidia.com
+            - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+      specific:
+        - output_types: [requirements, pyproject]
+          matrices:
+            - matrix: {cuda: "12.*"}
+              packages:
+                - cuda-python>=12.0,<13.0a0
+            - matrix: {cuda: "11.*"}
+              packages: &run_pylibcudf_packages_all_cu11
+                - cuda-python>=11.7.1,<12.0a0
+            - {matrix: null, packages: *run_pylibcudf_packages_all_cu11}
+    ```
+- Dependencies appearing in several lists should be in their own standalone `depends_on_{project}`
+  lists.
+
+    Example:
+
+    ```
+    files:
+      all:
+        output: conda
+        matrix:
+          cuda: ["11.8", "12.5"]
+          arch: [x86_64]
+        includes:
+          # ...
+          - depends_on_rmm
+          # ...
+      py_rapids_build_cuspatial:
+        output: [pyproject]
+        pyproject_dir: python/cuspatial
+        extras:
+          table: tool.rapids-build-backend
+          key: requires
+        includes:
+          # ...
+          - depends_on_rmm
+          # ...
+      py_run_cuspatial:
+        output: [pyproject]
+        pyproject_dir: python/cuspatial
+        extras:
+          table: project
+        includes:
+          # ...
+          - depends_on_rmm
+          # ...
+    dependencies:
+
+      depends_on_rmm:
+        common:
+          - output_types: conda
+            packages:
+              - &rmm_unsuffixed rmm==24.12.*,>=0.0.0a0
+          - output_types: requirements
+            packages:
+              # pip recognizes the index as a global option for the requirements.txt file
+              - --extra-index-url=https://pypi.nvidia.com
+              - --extra-index-url=https://pypi.anaconda.org/rapidsai-wheels-nightly/simple
+        specific:
+          - output_types: [requirements, pyproject]
+            matrices:
+              - matrix:
+                  cuda: "12.*"
+                  cuda_suffixed: "true"
+                packages:
+                  - rmm-cu12==24.12.*,>=0.0.0a0
+              - matrix:
+                  cuda: "11.*"
+                  cuda_suffixed: "true"
+                packages:
+                  - rmm-cu11==24.12.*,>=0.0.0a0
+              - {matrix: null, packages: [*rmm_unsuffixed]}
+    ```
