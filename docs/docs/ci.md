@@ -20,6 +20,46 @@ While each repository is free to define whatever scripts it requires, most RAPID
 Some repositories will include helper scripts in this directory to share logic between the above scripts.
 This practice is especially common if there are multiple wheels to build since the logic for building various wheels is usually similar.
 
+### Wheel-building scripts
+
+Some RAPIDS wheels rely on other wheels to provide build-time dependencies.
+For example, `pylibcudf-cu12` wheel builds install `libcudf-cu12` wheels to get `libcudf.so` and its headers.
+
+By default, `pip wheel` or `python -m build` will install such build-time dependencies into a temporary directory (see ["Python Packages"](build.md#python-packages) for details).
+The path to that directory is randomly chosen, and so the path that those build dependencies are installed to changes on every build.
+The filepaths for files used in the build are considered as part of `sccache`'s cache key ([see the `sccache` docs](https://github.com/mozilla/sccache/blob/main/docs/Caching.md)), and so this use of build isolation leads to a high rate of cache misses.
+
+To minimize the impact of this, since https://github.com/rapidsai/build-planning/issues/108 RAPIDS wheel-building scripts in CI have followed these rules:
+
+* pure Python? (e.g. `dask-cuda`) build isolation
+* Python + Cython? (e.g. `ucxx`) build isolation
+* mostly C / C++? (e.g. `libcudf`) no build isolation
+
+This pattern is followed to balance these two competing concerns:
+
+* improved cache hit rates for `sccache`, and therefore faster and less resource-intensive builds
+* testing that `rapids-build-backend` correctly generates package metadata
+
+Without build isolation, all build-time dependencies have to be installed manually before invoking a wheel-building backend.
+That is why in `build_wheel_{lib}.sh` scripts, you'll often see a pattern similar to this:
+
+```shell
+rapids-dependency-file-generator \
+  --output requirements \
+  --file-key "py_build_${package_name}" \
+  --file-key "py_rapids_build_${package_name}" \
+  --matrix "cuda=${RAPIDS_CUDA_VERSION%.*};arch=$(arch);py=${RAPIDS_PY_VERSION};cuda_suffixed=true" \
+| tee /tmp/requirements-build.txt
+
+python -m pip install \
+    -v \
+    --prefer-binary \
+    -r /tmp/requirements-build.txt
+
+# build with '--no-build-isolation', for better sccache hit rate
+export PIP_NO_BUILD_ISOLATION=0
+```
+
 ### Versioning
 
 RAPIDS libraries are versioned using [CalVer](https://calver.org/).

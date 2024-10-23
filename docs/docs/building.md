@@ -43,12 +43,16 @@ Some RAPIDS packages are pure Python and simply depend on other packages for com
 Those packages do not contain any Cython or CMake, and instead using `setuptools`.
 
 To build and install Python packages, you follow the same approach used to build any normal Python package:
+
+```shell
+python -m pip install /path/to/project
 ```
-python -m pip install --no-build-isolation /path/to/project
-```
+
 where `/path/to/project` is the path to a directory containing a `pyproject.toml` file.
-Note the specification of `--no-build-isolation` above; this assumes that you have already installed all the Cython and C++ build dependencies of your project into your environment.
-Currently this is a requirement of RAPIDS builds, which are not able to correctly specify the Python package requirements, [but this will be fixed in the future with the rapids-build-backend](packaging.md#pyproject).
+
+By default, this will create an isolated build environment... a temporary directory containing all of the build-time dependencies of the package.
+That's convenient because it means that you don't have to manually install the build dependencies ahead of time or deal with conflicts
+between those dependencies and other things in your development environment.
 
 ## build.sh scripts
 
