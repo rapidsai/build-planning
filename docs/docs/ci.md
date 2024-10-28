@@ -39,6 +39,7 @@ This pattern is followed to balance these two competing concerns:
 
 * improved cache hit rates for `sccache`, and therefore faster and less resource-intensive builds
 * testing that `rapids-build-backend` correctly generates package metadata
+* ensuring that the default approach for local builds from source (with isolation) will work out of the box for the non-C++ packages
 
 Without build isolation, all build-time dependencies have to be installed manually before invoking a wheel-building backend.
 That is why in `build_wheel_{lib}.sh` scripts, you'll often see a pattern similar to this:
