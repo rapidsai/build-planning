@@ -50,9 +50,7 @@ python -m pip install /path/to/project
 
 where `/path/to/project` is the path to a directory containing a `pyproject.toml` file.
 
-By default, this will create an isolated build environment... a temporary directory containing all of the build-time dependencies of the package.
-That's convenient because it means that you don't have to manually install the build dependencies ahead of time or deal with conflicts
-between those dependencies and other things in your development environment.
+By default, this will create an isolated build environment, and `rapids-build-backend` will ensure that the necessary build-time dependencies are installed in that environment.
 
 ## build.sh scripts
 
