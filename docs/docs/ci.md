@@ -31,9 +31,9 @@ The filepaths for files used in the build are considered as part of `sccache`'s 
 
 To minimize the impact of this, since https://github.com/rapidsai/build-planning/issues/108 RAPIDS wheel-building scripts in CI have followed these rules:
 
-* pure Python? (e.g. `dask-cuda`) build isolation
-* Python + Cython? (e.g. `ucxx`) build isolation
-* mostly C / C++? (e.g. `libcudf`) no build isolation
+* pure Python (e.g. `dask-cuda`): build isolation
+* Python & Cython (e.g. `ucxx`): build isolation
+* mostly C++ (e.g. `libcudf`): no build isolation
 
 This pattern is followed to balance these two competing concerns:
 
