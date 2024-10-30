@@ -65,13 +65,9 @@ These suffixes are part of the package name, but they don't change the import na
 Each package will contain roughly the same contents, just built with different CUDA versions.
 In other words, `cudf-cu11` and `cudf-cu12` should not be installed together in the same environment, because they will clobber each other and cause unpredictable results.
 
-This difficulty is the reason why [the section on building Python packages recommended turning off build isolation](building.md#python-packages).
 The default dependency list specified in `pyproject.toml` for our packages does not contain the necessary suffix, and will therefore be incorrect.
-However, the correct dependency list may be generated using DFG, and that `requirements.txt` file can be installed into the environment by the developer.
-When we build wheels for distribution, we modify the metadata in `pyproject.toml` directly before building the package to address the above concerns.
-These modifications can be seen in our CI scripts: for instance, [you can see that cudf changes `rmm` to `rmm-cu11` or `rmm-cu12` with sed in its wheel building scripts](https://github.com/rapidsai/cudf/blob/branch-24.06/ci/build_wheel.sh#L42).
-If developers wish to build and/or install a specific RAPIDS wheel locally, they will have to make similar modifications.
-In the future, this will be fixed with the [`rapids-build-backend`](https://github.com/rapidsai/rapids-build-backend/) a PEP 517 build backend wrapper that essentially provides the glue between DFG and the underlying build backend (typically `scikit-build-core` or `setuptools`), ensuring that when a Python package is built the appropriate suffixes are added.
+However, the correct dependency list is generated at wheel-building time using [`rapids-build-backend`](https://github.com/rapidsai/rapids-build-backend/), a PEP 517
+build backend wrapper that provides the glue between `rapids-dependency-file-generator` and the build backend (typically `scikit-build-core` or `setuptools`).
 
 ## Nightlies
 
