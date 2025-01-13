@@ -178,7 +178,7 @@ following conventions:
                 - cuda-python>=11.7.1,<12.0a0
             - {matrix: null, packages: *run_pylibcudf_packages_all_cu11}
     ```
-- Dependencies appearing in several lists  Dependencies with complex requirements such as extra index URLs or package names that vary by CUDA version (like `-cuXX` suffixes) or format (different conda and PyPI names) should be in their own standalone `depends_on_{project}` lists. Simpler dependencies should use YAML anchors to avoid duplication of the pinning specs.
+- Dependencies that appear in several lists and have complex requirements such as extra index URLs or package names that vary by CUDA version (like `-cuXX` suffixes) or format (different conda and PyPI names) should be in their own standalone `depends_on_{project}` lists. Simpler dependencies should use YAML anchors to avoid duplication of the pinning specs.
 
     Example:
 
