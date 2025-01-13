@@ -178,8 +178,7 @@ following conventions:
                 - cuda-python>=11.7.1,<12.0a0
             - {matrix: null, packages: *run_pylibcudf_packages_all_cu11}
     ```
-- Dependencies appearing in several lists should be in their own standalone `depends_on_{project}`
-  lists.
+- Dependencies appearing in several lists  Dependencies with complex requirements such as extra index URLs or package names that vary by CUDA version (like `-cuXX` suffixes) or format (different conda and PyPI names) should be in their own standalone `depends_on_{project}` lists. Simpler dependencies should use YAML anchors to avoid duplication of the pinning specs.
 
     Example:
 
@@ -193,6 +192,8 @@ following conventions:
         includes:
           # ...
           - depends_on_rmm
+          - py_build
+          - py_run
           # ...
       py_rapids_build_cuspatial:
         output: [pyproject]
@@ -203,6 +204,7 @@ following conventions:
         includes:
           # ...
           - depends_on_rmm
+          - py_build
           # ...
       py_run_cuspatial:
         output: [pyproject]
@@ -212,9 +214,9 @@ following conventions:
         includes:
           # ...
           - depends_on_rmm
+          - py_run
           # ...
     dependencies:
-
       depends_on_rmm:
         common:
           - output_types: conda
@@ -239,4 +241,15 @@ following conventions:
                 packages:
                   - rmm-cu11==24.12.*,>=0.0.0a0
               - {matrix: null, packages: [*rmm_unsuffixed]}
+      py_build:
+        common:
+          - output_types: [conda, pyproject, requirements]
+            packages:
+              - &numpy numpy>=1.23,<3.0.0a0
+      py_run:
+        common:
+          - output_types: [conda, pyproject, requirements]
+            packages:
+              - *numpy
+              - scipy>=1.14
     ```
