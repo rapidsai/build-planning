@@ -17,28 +17,6 @@ This is problematic for RAPIDS for two reasons:
 To resolve this we have two solutions.
 One is the modern CUDA 12 solution, while the other is our legacy CUDA 11 solution.
 
-
-### pynvjitlink
-
-One of the new libraries added to the CTK in CUDA 12 is [nvjitlink](https://docs.nvidia.com/cuda/nvjitlink/index.html), which exposes APIs for the purpose of enabling minor version compatibility with PTX code.
-RAPIDS created a set of Python bindings for this in [pynvjitlink](https://github.com/rapidsai/pynvjitlink/), which we need for, among other things, using JIT-compiled code from numba.
-This package is built and managed in CI similarly to other RAPIDS packages.
-However, it is not versioned like other RAPIDS packages.
-It follows a traditional Semantic Versioning model.
-It may eventually be moved out of RAPIDS and to an owner that reflects its broader utility.
-
-### ptxcompiler and cubinlinker
-
-Prior to CUDA 12, enabling minor version compatibility for PTX was far more challenging because the necessary public APIs did not exist.
-To bridge this gap, we build the `ptxcompiler` and `cubinlinker` packages, the latter of which leverages internal CUDA APIs to enable this functionality.
-These are CUDA 11-specific tools and are not used in CUDA 12 environments.
-[ptxcompiler is an open-source but deprecated package](https://github.com/rapidsai/ptxcompiler), scheduled for removal when RAPIDS drops CUDA 11 support.
-`cubinlinker`, on the other hand, is a private repository maintained internally due to its use of CUDA internals.
-
-At present, conda packages for `ptxcompiler` are built and published via [this conda-forge feedstock](https://github.com/conda-forge/ptxcompiler-feedstock).
-conda packages for `cubinlinker` have generally been built manually and uploaded.
-Wheels for both `ptxcompiler` and `cubinlinker` are built and uploaded using [this script](https://github.com/rapidsai/pypi-wheel-scripts/blob/main/cibuildwheel-local-scripts/cibuildwheel_ptxcompiler_cubinlinker.sh) in the `pypi-wheel-scripts` repository.
-
 ## dask
 
 RAPIDS uses Dask extensively.
@@ -52,3 +30,26 @@ In addition to functioning as a metapackage, this package also supports patching
 The official release process is largely handled by the ops team.
 There is a some degree of manual work involved.
 Some of the relevant scripts involved in this process may be found [in this repository](https://github.com/rapidsai/release-scripts).
+
+## Archived Projects
+
+### pynvjitlink
+
+One of the new libraries added to the CTK in CUDA 12 was [nvjitlink](https://docs.nvidia.com/cuda/nvjitlink/index.html), which exposed APIs for the purpose of enabling minor version compatibility with PTX code.
+RAPIDS created a set of Python bindings for this in [pynvjitlink](https://github.com/rapidsai/pynvjitlink/), which were needed for using JIT-compiled code from numba.
+
+That same functionality was eventually exposed via `cuda-bindings`, `cuda-core`, and `numba-cuda`, making `pynvjitlink` unncessary for CUDA 12 and beyond.
+
+RAPIDS stopped publishing `pynvjitlink` around RAPIDS 25.10, and never added CUDA 13 support to it.
+
+For more history on that, see:
+
+* https://github.com/rapidsai/pynvjitlink/issues/130
+* https://github.com/rapidsai/build-planning/issues/210
+
+### ptxcompiler and cubinlinker
+
+Prior to CUDA 12, enabling minor version compatibility for PTX was far more challenging because the necessary public APIs did not exist.
+To bridge this gap, we built the `ptxcompiler` and `cubinlinker` packages, the latter of which leveraged internal CUDA APIs to enable this functionality.
+These were CUDA 11-specific tools and are not used in CUDA 12 environments.
+Development on both stopped when RAPIDS dropped CUDA 11 support (https://github.com/rapidsai/build-planning/issues/184).
